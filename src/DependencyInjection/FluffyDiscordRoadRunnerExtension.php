@@ -72,7 +72,7 @@ class FluffyDiscordRoadRunnerExtension extends Extension
         }
 
         try {
-            return json_decode(base64_decode($rpc->call("rpc.Config", null)), true, 512, JSON_THROW_ON_ERROR);
+            return json_decode(base64_decode((string) $rpc->call("rpc.Config", null)), true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $jsonException) {
             throw new CacheAutoRegisterException($jsonException->getMessage(), previous: $jsonException);
         } catch (RelayException $relayException) {
