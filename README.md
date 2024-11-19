@@ -299,6 +299,14 @@ class ExampleJobsRunner implements JobsRunner
 }
 ```
 
+Пример регистрации сервиса в DI `services.yaml`
+
+```yaml
+services:
+    FluffyDiscord\RoadRunnerBundle\Worker\Jobs\JobsRunner:
+      class: SomeNameSpace\Name\ExampleJobsRunner
+```
+
 
 ## Debugging (recommendations)
 
