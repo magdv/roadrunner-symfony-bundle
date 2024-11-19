@@ -7,7 +7,6 @@ use FluffyDiscord\RoadRunnerBundle\Configuration\Configuration;
 use FluffyDiscord\RoadRunnerBundle\Exception\CacheAutoRegisterException;
 use FluffyDiscord\RoadRunnerBundle\Exception\InvalidRPCConfigurationException;
 use FluffyDiscord\RoadRunnerBundle\Worker\CentrifugoWorker;
-use FluffyDiscord\RoadRunnerBundle\Worker\HttpWorker;
 use Spiral\Goridge\Exception\RelayException;
 use Spiral\Goridge\RPC\RPCInterface;
 use Symfony\Component\Config\FileLocator;
@@ -25,17 +24,17 @@ class FluffyDiscordRoadRunnerExtension extends Extension
 
         $config = $this->processConfiguration(new Configuration(), $configs);
 
-        if ($container->hasDefinition(HttpWorker::class)) {
-            if (isset($config["http"]["early_router_initialization"])) {
-                $definition = $container->getDefinition(HttpWorker::class);
-                $definition->replaceArgument(0, $config["http"]["early_router_initialization"]);
-            }
-
-            if (isset($config["http"]["lazy_boot"])) {
-                $definition = $container->getDefinition(HttpWorker::class);
-                $definition->replaceArgument(1, $config["http"]["lazy_boot"]);
-            }
-        }
+//        if ($container->hasDefinition(HttpWorker::class)) {
+//            if (isset($config["http"]["early_router_initialization"])) {
+//                $definition = $container->getDefinition(HttpWorker::class);
+//                $definition->replaceArgument(0, $config["http"]["early_router_initialization"]);
+//            }
+//
+//            if (isset($config["http"]["lazy_boot"])) {
+//                $definition = $container->getDefinition(HttpWorker::class);
+//                $definition->replaceArgument(1, $config["http"]["lazy_boot"]);
+//            }
+//        }
 
         if (isset($config["centrifugo"]["lazy_boot"]) && $container->hasDefinition(CentrifugoWorker::class)) {
             $definition = $container->getDefinition(CentrifugoWorker::class);
