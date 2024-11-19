@@ -29,14 +29,13 @@ readonly class HttpWorker implements WorkerInterface
     public const string DUMMY_REQUEST_ATTRIBUTE = "rr_dummy_request";
 
     public function __construct(
-        private bool                     $earlyRouterInitialization,
-        private bool                     $lazyBoot,
-        private KernelInterface          $kernel,
+        private bool $earlyRouterInitialization,
+        private bool $lazyBoot,
+        private KernelInterface $kernel,
         private EventDispatcherInterface $eventDispatcher,
-        private ?SentryHubInterface      $sentryHubInterface = null,
-        ?HttpFoundationFactoryInterface  $httpFoundationFactory = null,
-    )
-    {
+        private ?SentryHubInterface $sentryHubInterface = null,
+        ?HttpFoundationFactoryInterface $httpFoundationFactory = null,
+    ) {
         $this->psrFactory = new Psr7\Factory\Psr17Factory();
         $this->httpFoundationFactory = $httpFoundationFactory ?? new HttpFoundationFactory();
     }
@@ -68,7 +67,10 @@ readonly class HttpWorker implements WorkerInterface
         $this->eventDispatcher->dispatch(new WorkerBootingEvent());
 
         try {
+            $i = 0;
             while ($request = $worker->waitRequest()) {
+//                todo сборка мусора
+
                 $this->sentryHubInterface?->pushScope();
 
                 try {
@@ -91,20 +93,25 @@ readonly class HttpWorker implements WorkerInterface
                     if ($this->kernel instanceof TerminableInterface) {
                         $this->kernel->terminate($symfonyRequest, $symfonyResponse);
                     }
-
                 } catch (\Throwable $throwable) {
                     $this->sentryHubInterface?->captureException($throwable);
                     $worker->getWorker()->error((string)$throwable);
-
                 } finally {
                     $result = $this->sentryHubInterface?->getClient()?->flush();
 
                     // sentry v4 compatibility
-                    if($result instanceof PromiseInterface) {
+                    if ($result instanceof PromiseInterface) {
                         $result->wait(false);
                     }
 
                     $this->sentryHubInterface?->popScope();
+                }
+
+                // сборка мусора каждые 20 запросов
+                $i++;
+                if ($i === 20) {
+                    gc_collect_cycles();
+                    $i = 0;
                 }
             }
         } catch (\Throwable $throwable) {

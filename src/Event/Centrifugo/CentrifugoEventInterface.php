@@ -8,6 +8,8 @@ use RoadRunner\Centrifugo\Request\RequestInterface;
 interface CentrifugoEventInterface
 {
     public function getResponse(): ?ResponseInterface;
+
     public function getRequest(): RequestInterface;
+
     public function setResponse(?ResponseInterface $response): self;
 }

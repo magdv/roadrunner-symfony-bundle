@@ -47,17 +47,18 @@ class FluffyDiscordRoadRunnerExtension extends Extension
 
             foreach (array_keys($rrConfig["kv"] ?? []) as $name) {
                 $container
-                    ->register("cache.adapter.rr_kv.{$name}", KVCacheAdapter::class)
+                    ->register(sprintf('cache.adapter.rr_kv.%s', $name), KVCacheAdapter::class)
                     ->setFactory([KVCacheAdapter::class, "create"])
-                    ->setArguments([
-                        "", // namespace, dummy
-                        $container->getDefinition(RPCInterface::class),
-                        $name,
-                        $container->getParameter("kernel.project_dir"),
-                        $config["kv"]["serializer"] ?? null,
-                        $config["kv"]["keypair_path"] ?? null,
-                    ])
-                ;
+                    ->setArguments(
+                        [
+                            "", // namespace, dummy
+                            $container->getDefinition(RPCInterface::class),
+                            $name,
+                            $container->getParameter("kernel.project_dir"),
+                            $config["kv"]["serializer"] ?? null,
+                            $config["kv"]["keypair_path"] ?? null,
+                        ]
+                    );
             }
         }
     }
@@ -66,8 +67,8 @@ class FluffyDiscordRoadRunnerExtension extends Extension
     {
         try {
             $rpc = $container->get(RPCInterface::class);
-        } catch (InvalidRPCConfigurationException $invalidRPCConfigurationException) {
-            throw new CacheAutoRegisterException($invalidRPCConfigurationException->getMessage(), previous: $invalidRPCConfigurationException);
+        } catch (InvalidRPCConfigurationException $invalidrpcConfigurationException) {
+            throw new CacheAutoRegisterException($invalidrpcConfigurationException->getMessage(), previous: $invalidrpcConfigurationException);
         }
 
         try {

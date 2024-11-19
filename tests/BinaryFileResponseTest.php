@@ -25,9 +25,8 @@ class BinaryFileResponseTest extends TestCase
     #[DataProvider("responseProvider")]
     public function testVanillaResponse(
         BinaryFileResponse $symfonyResponse,
-        string             $expected,
-    ): void
-    {
+        string $expected,
+    ): void {
         ob_start();
         $symfonyResponse->sendContent();
         $content = ob_get_clean();
@@ -41,13 +40,12 @@ class BinaryFileResponseTest extends TestCase
     #[DataProvider("responseProvider")]
     public function testVanillaRangeResponse(
         BinaryFileResponse $symfonyResponse,
-        string             $expected,
-        int                $rangeStart,
-        int                $rangeEnd,
-    ): void
-    {
+        string $expected,
+        int $rangeStart,
+        int $rangeEnd,
+    ): void {
         $request = Request::createFromGlobals();
-        $request->headers->set("Range", "bytes={$rangeStart}-{$rangeEnd}");
+        $request->headers->set("Range", sprintf('bytes=%d-%d', $rangeStart, $rangeEnd));
 
         $symfonyResponse->prepare($request);
 
@@ -64,9 +62,8 @@ class BinaryFileResponseTest extends TestCase
     #[DataProvider("responseProvider")]
     public function testBundleResponseWrapper(
         BinaryFileResponse $symfonyResponse,
-        string             $expected,
-    ): void
-    {
+        string $expected,
+    ): void {
         $content = implode("", iterator_to_array(BinaryFileResponseWrapper::wrap($symfonyResponse, Request::createFromGlobals())));
 
         $this->assertSame(
@@ -78,13 +75,12 @@ class BinaryFileResponseTest extends TestCase
     #[DataProvider("responseProvider")]
     public function testBundleRangeResponse(
         BinaryFileResponse $symfonyResponse,
-        string             $expected,
-        int                $rangeStart,
-        int                $rangeEnd,
-    ): void
-    {
+        string $expected,
+        int $rangeStart,
+        int $rangeEnd,
+    ): void {
         $request = Request::createFromGlobals();
-        $request->headers->set("Range", "bytes={$rangeStart}-{$rangeEnd}");
+        $request->headers->set("Range", sprintf('bytes=%d-%d', $rangeStart, $rangeEnd));
 
         $symfonyResponse->prepare($request);
 

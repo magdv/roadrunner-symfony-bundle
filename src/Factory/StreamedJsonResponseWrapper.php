@@ -52,23 +52,26 @@ class StreamedJsonResponseWrapper
     {
         $generators = [];
 
-        array_walk_recursive($data, function (&$item, $key) use (&$generators, $placeholder) {
-            if ($placeholder === $key) {
-                // if the placeholder is already in the structure it should be replaced with a new one that explode
-                // works like expected for the structure
-                $generators[] = $key;
-            }
+        array_walk_recursive(
+            $data,
+            static function (&$item, $key) use (&$generators, $placeholder) {
+                if ($placeholder === $key) {
+                    // if the placeholder is already in the structure it should be replaced with a new one that explode
+                    // works like expected for the structure
+                    $generators[] = $key;
+                }
 
-            // generators should be used but for better DX all kind of Traversable and objects are supported
-            if (\is_object($item)) {
-                $generators[] = $item;
-                $item = $placeholder;
-            } elseif ($placeholder === $item) {
-                // if the placeholder is already in the structure it should be replaced with a new one that explode
-                // works like expected for the structure
-                $generators[] = $item;
+                // generators should be used but for better DX all kind of Traversable and objects are supported
+                if (\is_object($item)) {
+                    $generators[] = $item;
+                    $item = $placeholder;
+                } elseif ($placeholder === $item) {
+                    // if the placeholder is already in the structure it should be replaced with a new one that explode
+                    // works like expected for the structure
+                    $generators[] = $item;
+                }
             }
-        });
+        );
 
         $jsonParts = explode('"' . $placeholder . '"', json_encode($data, $jsonEncodingOptions));
 

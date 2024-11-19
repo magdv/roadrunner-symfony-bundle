@@ -14,14 +14,13 @@ use Symfony\Component\Cache\Adapter\Psr16Adapter;
 class KVCacheAdapter extends Psr16Adapter
 {
     public static function create(
-        string       $namespace,
+        string $namespace,
         RPCInterface $rpc,
-        string       $name,
-        string       $projectDir,
-        ?string      $serializerClass,
-        ?string      $keypairPath,
-    ): self
-    {
+        string $name,
+        string $projectDir,
+        ?string $serializerClass,
+        ?string $keypairPath,
+    ): self {
         $serializer = null;
         if ($serializerClass === null && function_exists("igbinary_serialize")) {
             $serializer = new IgbinarySerializer();
@@ -41,7 +40,7 @@ class KVCacheAdapter extends Psr16Adapter
         );
 
         if ($keypairPath !== null) {
-            $keypairPath = "{$projectDir}/{$keypairPath}";
+            $keypairPath = sprintf('%s/%s', $projectDir, $keypairPath);
             if (!file_exists($keypairPath)) {
                 throw new SodiumKeypairException(sprintf('Unable to find keypair at: %s', $keypairPath));
             }

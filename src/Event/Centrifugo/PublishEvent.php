@@ -13,8 +13,7 @@ class PublishEvent extends Event implements CentrifugoEventInterface
 
     public function __construct(
         private readonly Publish $request,
-    )
-    {
+    ) {
     }
 
     public function getRequest(): Publish
