@@ -102,20 +102,6 @@ return static function (ContainerConfigurator $container) {
         ])
     ;
 
-    $services->set(JobsWorker::class)
-             ->public()
-             ->args([
-                 service(KernelInterface::class),
-             ]);
-
-    $services
-        ->get(WorkerRegistry::class)
-        ->call("registerWorker", [
-            Environment\Mode::MODE_JOBS,
-            service(JobsWorker::class),
-        ])
-    ;
-
     // Centrifugo
     if (class_exists(RoadRunnerCentrifugoWorker::class)) {
         $services
