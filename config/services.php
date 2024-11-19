@@ -59,12 +59,12 @@ return static function (ContainerConfigurator $container) {
         ])
     ;
 
-//    // default bundle services
-//    $services
-//        ->set(WorkerRegistry::class)
-//        ->public()
-//    ;
-//
+    // default bundle services
+    $services
+        ->set(WorkerRegistry::class)
+        ->public()
+    ;
+
 //    $services
 //        ->set(BundleHttpWorker::class)
 //        ->public()
