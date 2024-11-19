@@ -6,6 +6,7 @@ use FluffyDiscord\RoadRunnerBundle\Factory\RPCFactory;
 use FluffyDiscord\RoadRunnerBundle\Session\WorkerSessionStorageFactory;
 use FluffyDiscord\RoadRunnerBundle\Worker\CentrifugoWorker;
 use FluffyDiscord\RoadRunnerBundle\Worker\HttpWorker as BundleHttpWorker;
+use FluffyDiscord\RoadRunnerBundle\Worker\Jobs\JobsRunner;
 use FluffyDiscord\RoadRunnerBundle\Worker\Jobs\JobsWorker;
 use FluffyDiscord\RoadRunnerBundle\Worker\WorkerRegistry;
 use RoadRunner\Centrifugo\CentrifugoWorker as RoadRunnerCentrifugoWorker;
@@ -61,22 +62,30 @@ return static function (ContainerConfigurator $container) {
 
     // default bundle services
     $services
-        ->set(WorkerRegistry::class)
+        ->set(BundleHttpWorker::class)
+        ->args([
+            service(KernelInterface::class),
+            service(EventDispatcherInterface::class),
+            service(SentryHubInterface::class)->nullOnInvalid(),
+        ])
         ->public()
     ;
 
-//    $services
-//        ->set(BundleHttpWorker::class)
-//        ->public()
-//        ->args([
-//            $_ENV["APP_ENV"] === "prod",
-//            false,
-//            service(KernelInterface::class),
-//            service(EventDispatcherInterface::class),
-//            service(SentryHubInterface::class)->nullOnInvalid(),
-//            service(HttpFoundationFactoryInterface::class)->nullOnInvalid(),
-//        ])
-//    ;
+    $services
+        ->set(JobsWorker::class)
+        ->args([
+            service(KernelInterface::class),
+            service(JobsRunner::class),
+        ]);
+
+    $services
+        ->set(WorkerRegistry::class)
+        ->args([
+            service(BundleHttpWorker::class),
+            service(JobsWorker::class),
+        ])
+        ->public();
+
 //
 //    $services
 //        ->get(WorkerRegistry::class)
