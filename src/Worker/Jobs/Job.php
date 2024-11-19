@@ -5,9 +5,9 @@ namespace FluffyDiscord\RoadRunnerBundle\Worker\Jobs;
 class Job
 {
     public function __construct(
-        private string $queue,
-        private string $payload,
-        private array $headers,
+        private readonly string $queue,
+        private readonly string $payload,
+        private readonly array $headers,
     ) {
     }
 

@@ -24,9 +24,13 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 readonly class HttpWorker implements WorkerInterface
 {
     private HttpFoundationFactoryInterface $httpFoundationFactory;
+
     private Psr7\Factory\Psr17Factory $psrFactory;
 
-    public const string DUMMY_REQUEST_ATTRIBUTE = "rr_dummy_request";
+    /**
+     * @var string
+     */
+    public const DUMMY_REQUEST_ATTRIBUTE = "rr_dummy_request";
 
     public function __construct(
         private bool $earlyRouterInitialization,
@@ -69,8 +73,6 @@ readonly class HttpWorker implements WorkerInterface
         try {
             $i = 0;
             while ($request = $worker->waitRequest()) {
-//                todo сборка мусора
-
                 $this->sentryHubInterface?->pushScope();
 
                 try {
@@ -108,7 +110,7 @@ readonly class HttpWorker implements WorkerInterface
                 }
 
                 // сборка мусора каждые 20 запросов
-                $i++;
+                ++$i;
                 if ($i === 20) {
                     gc_collect_cycles();
                     $i = 0;

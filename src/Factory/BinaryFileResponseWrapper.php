@@ -62,7 +62,7 @@ class BinaryFileResponseWrapper
                         $length -= $read;
                     }
 
-                    $data = substr($data, $read);
+                    $data = substr((string) $data, $read);
                 }
             }
         } finally {
