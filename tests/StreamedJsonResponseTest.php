@@ -17,9 +17,11 @@ class StreamedJsonResponseTest extends TestCase
             yield ["id" => 3];
         };
 
-        $symfonyResponse = new StreamedJsonResponse([
-            "items" => $generator(),
-        ]);
+        $symfonyResponse = new StreamedJsonResponse(
+            [
+                "items" => $generator(),
+            ]
+        );
 
         return [
             [$symfonyResponse, '{"items":[{"id":1},{"id":2},{"id":3}]}'],
@@ -29,9 +31,8 @@ class StreamedJsonResponseTest extends TestCase
     #[DataProvider("responseProvider")]
     public function testVanillaResponse(
         StreamedJsonResponse $symfonyResponse,
-        string               $expected,
-    ): void
-    {
+        string $expected,
+    ): void {
         ob_start();
         $symfonyResponse->sendContent();
         $content = ob_get_clean();
@@ -45,9 +46,8 @@ class StreamedJsonResponseTest extends TestCase
     #[DataProvider("responseProvider")]
     public function testBundleResponseWrapper(
         StreamedJsonResponse $symfonyResponse,
-        string               $expected,
-    ): void
-    {
+        string $expected,
+    ): void {
         $content = implode("", iterator_to_array(StreamedJsonResponseWrapper::wrap($symfonyResponse)));
 
         $this->assertSame(

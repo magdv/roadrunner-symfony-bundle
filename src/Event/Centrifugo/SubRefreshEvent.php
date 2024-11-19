@@ -13,8 +13,7 @@ class SubRefreshEvent extends Event implements CentrifugoEventInterface
 
     public function __construct(
         private readonly SubRefresh $request,
-    )
-    {
+    ) {
     }
 
     public function getRequest(): SubRefresh

@@ -13,8 +13,7 @@ class ConnectEvent extends Event implements CentrifugoEventInterface
 
     public function __construct(
         private readonly Connect $request,
-    )
-    {
+    ) {
     }
 
     public function getRequest(): Connect

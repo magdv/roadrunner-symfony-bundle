@@ -32,8 +32,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode("lazy_boot")->defaultFalse()->end()
                     ->end()
                 ->end()
-            ->end()
-        ;
+            ->end();
 
         return $builder;
     }

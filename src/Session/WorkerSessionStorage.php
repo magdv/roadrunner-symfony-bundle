@@ -10,12 +10,11 @@ use Symfony\Component\HttpFoundation\Session\Storage\Proxy\AbstractProxy;
 class WorkerSessionStorage extends NativeSessionStorage
 {
     public function __construct(
-        array                                       $options,
+        array $options,
         \SessionHandlerInterface|AbstractProxy|null $handler,
-        ?MetadataBag                                $metaBag,
-        private readonly RequestStack               $requestStack,
-    )
-    {
+        ?MetadataBag $metaBag,
+        private readonly RequestStack $requestStack,
+    ) {
         parent::__construct($options, $handler, $metaBag);
     }
 
@@ -64,10 +63,8 @@ class WorkerSessionStorage extends NativeSessionStorage
          * `PHP Warning: SessionHandler::read(): open(filepath, O_RDWR) failed: No such file or directory (2).`
          */
         $sessionId = $this->requestStack->getCurrentRequest()?->cookies->get(session_name());
-        if ($sessionId) {
-            if (!preg_match('/^[a-zA-Z0-9,-]{22,250}$/', $sessionId)) {
-                $sessionId = session_create_id();
-            }
+        if ($sessionId && !preg_match('#^[a-zA-Z0-9,-]{22,250}$#', $sessionId)) {
+            $sessionId = session_create_id();
         }
 
         session_id($sessionId);
@@ -80,7 +77,6 @@ class WorkerSessionStorage extends NativeSessionStorage
         $this->loadSession();
 
         return true;
-
     }
 
     public function reset(): void

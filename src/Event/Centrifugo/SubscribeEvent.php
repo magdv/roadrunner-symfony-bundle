@@ -13,8 +13,7 @@ class SubscribeEvent extends Event implements CentrifugoEventInterface
 
     public function __construct(
         private readonly Subscribe $request,
-    )
-    {
+    ) {
     }
 
     public function getRequest(): Subscribe

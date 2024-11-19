@@ -15,18 +15,14 @@ readonly class WorkerSessionStorageFactory implements SessionStorageFactoryInter
 {
     public function __construct(
         #[Autowire(param: "session.storage.options")]
-        private array                                       $options,
-
+        private array $options,
         #[Autowire(service: "session.handler")]
         private AbstractProxy|\SessionHandlerInterface|null $handler,
-
         #[Autowire(service: "worker_session_factory_metadata_bag")]
-        private ?MetadataBag                                $metaBag,
-
-        private RequestStack                                $requestStack,
-        private bool                                        $secure = false,
-    )
-    {
+        private ?MetadataBag $metaBag,
+        private RequestStack $requestStack,
+        private bool $secure = false,
+    ) {
     }
 
     public function createStorage(?Request $request): SessionStorageInterface

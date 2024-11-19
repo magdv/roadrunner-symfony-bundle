@@ -6,6 +6,7 @@ use FluffyDiscord\RoadRunnerBundle\Factory\RPCFactory;
 use FluffyDiscord\RoadRunnerBundle\Session\WorkerSessionStorageFactory;
 use FluffyDiscord\RoadRunnerBundle\Worker\CentrifugoWorker;
 use FluffyDiscord\RoadRunnerBundle\Worker\HttpWorker as BundleHttpWorker;
+use FluffyDiscord\RoadRunnerBundle\Worker\Jobs\JobsWorker;
 use FluffyDiscord\RoadRunnerBundle\Worker\WorkerRegistry;
 use RoadRunner\Centrifugo\CentrifugoWorker as RoadRunnerCentrifugoWorker;
 use RoadRunner\Centrifugo\CentrifugoWorkerInterface;
@@ -98,6 +99,20 @@ return static function (ContainerConfigurator $container) {
                 ]),
             service(RequestStack::class),
             false,
+        ])
+    ;
+
+    $services->set(JobsWorker::class)
+             ->public()
+             ->args([
+                 service(KernelInterface::class),
+             ]);
+
+    $services
+        ->get(WorkerRegistry::class)
+        ->call("registerWorker", [
+            Environment\Mode::MODE_JOBS,
+            service(JobsWorker::class),
         ])
     ;
 

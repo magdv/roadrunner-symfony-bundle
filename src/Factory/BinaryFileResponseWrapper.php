@@ -50,6 +50,7 @@ class BinaryFileResponseWrapper
                 if (false === $data = $file->fread($read)) {
                     break;
                 }
+
                 while ('' !== $data) {
                     try {
                         yield $data;
@@ -60,6 +61,7 @@ class BinaryFileResponseWrapper
                     if (0 < $length) {
                         $length -= $read;
                     }
+
                     $data = substr($data, $read);
                 }
             }

@@ -279,6 +279,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     }
 }
 ```
+## Jobs
+
+Надо реализовать интерфейс JobsRunner.
+В методе `run` обработать входящие задачи. Как? Это уже на ваше усмотрение.
+Любой эксепшен вернет задачу в очередь.
+
+```php
+<?php
+
+namespace SomeNameSpace\Name;
+
+class ExampleJobsRunner implements JobsRunner
+{
+    public function run(Job $job): void
+    {
+        // TODO: Implement run() method.
+    }
+}
+```
+
 
 ## Debugging (recommendations)
 

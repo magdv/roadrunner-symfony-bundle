@@ -35,10 +35,9 @@ class StreamedResponseTest extends TestCase
     #[DataProvider("responseProvider")]
     public function testVanillaResponse(
         StreamedResponse $symfonyResponse,
-        string           $expected,
-        bool             $isGenerator,
-    ): void
-    {
+        string $expected,
+        bool $isGenerator,
+    ): void {
         ob_start();
         $symfonyResponse->sendContent();
         $content = ob_get_clean();
@@ -59,15 +58,16 @@ class StreamedResponseTest extends TestCase
     #[DataProvider("responseProvider")]
     public function testKernelWrappedBundleResponseWrapper(
         StreamedResponse $symfonyResponse,
-        string           $expected,
-    ): void
-    {
+        string $expected,
+    ): void {
         $callback = $symfonyResponse->getCallback();
 
         // simulate double kernel callback
-        $symfonyResponse->setCallback(static function () use ($callback) {
-            $callback();
-        });
+        $symfonyResponse->setCallback(
+            static function () use ($callback) {
+                $callback();
+            }
+        );
 
         $content = implode("", iterator_to_array(StreamedResponseWrapper::wrap($symfonyResponse)));
 
@@ -80,9 +80,8 @@ class StreamedResponseTest extends TestCase
     #[DataProvider("responseProvider")]
     public function testPureBundleResponseWrapper(
         StreamedResponse $symfonyResponse,
-        string           $expected,
-    ): void
-    {
+        string $expected,
+    ): void {
         // simulate situation where Kernel
         // did not wrap the response
         $content = implode("", iterator_to_array(StreamedResponseWrapper::wrap($symfonyResponse)));

@@ -32,13 +32,12 @@ use Symfony\Component\HttpKernel\KernelInterface;
 readonly class CentrifugoWorker implements WorkerInterface
 {
     public function __construct(
-        private bool                       $lazyBoot,
-        private KernelInterface            $kernel,
+        private bool $lazyBoot,
+        private KernelInterface $kernel,
         private RoadRunnerCentrifugoWorker $worker,
-        private EventDispatcherInterface   $eventDispatcher,
-        private ?SentryHubInterface        $sentryHubInterface = null,
-    )
-    {
+        private EventDispatcherInterface $eventDispatcher,
+        private ?SentryHubInterface $sentryHubInterface = null,
+    ) {
     }
 
     public function start(): void
@@ -70,7 +69,7 @@ readonly class CentrifugoWorker implements WorkerInterface
                 $processedEvent = $this->eventDispatcher->dispatch($event);
                 assert($processedEvent instanceof CentrifugoEventInterface);
 
-                if(!$event instanceof InvalidEvent) {
+                if (!$event instanceof InvalidEvent) {
                     $response = $processedEvent->getResponse() ?? match (true) {
                         $event instanceof ConnectEvent => new ConnectResponse(),
                         $event instanceof PublishEvent => new PublishResponse(),
@@ -85,7 +84,6 @@ readonly class CentrifugoWorker implements WorkerInterface
                 }
 
                 $this->eventDispatcher->dispatch(new AfterRespondEvent());
-
             } catch (\Throwable $throwable) {
                 $this->sentryHubInterface?->captureException($throwable);
                 $request->error(500, (string)$throwable);
@@ -93,9 +91,10 @@ readonly class CentrifugoWorker implements WorkerInterface
                 $result = $this->sentryHubInterface?->getClient()?->flush();
 
                 // sentry v4 compatibility
-                if($result instanceof PromiseInterface) {
+                if ($result instanceof PromiseInterface) {
                     $result->wait(false);
                 }
+
                 $this->sentryHubInterface?->popScope();
             }
         }
