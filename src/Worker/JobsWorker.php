@@ -1,10 +1,11 @@
 <?php
 
-namespace FluffyDiscord\RoadRunnerBundle\Worker\Jobs;
+namespace FluffyDiscord\RoadRunnerBundle\Worker;
 
-use FluffyDiscord\RoadRunnerBundle\Worker\WorkerInterface;
+use FluffyDiscord\RoadRunnerBundle\Event\Worker\Jobs\JobsRunEvent;
 use Spiral\RoadRunner\Jobs\Consumer;
 use Spiral\RoadRunner\Jobs\Task\ReceivedTaskInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Throwable;
 
@@ -14,7 +15,7 @@ class JobsWorker implements WorkerInterface
 
     public function __construct(
         private readonly KernelInterface $kernel,
-        private readonly JobsRunner $jobsRunner
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -27,8 +28,8 @@ class JobsWorker implements WorkerInterface
         /** @var ReceivedTaskInterface $task */
         while ($task = $this->waitTask()) {
             try {
-                $this->jobsRunner->run(
-                    new Job(
+                $this->eventDispatcher->dispatch(
+                    new JobsRunEvent(
                         $task->getQueue(),
                         $task->getPayload(),
                         $task->getHeaders()
