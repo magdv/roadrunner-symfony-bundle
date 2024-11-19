@@ -1,8 +1,10 @@
 <?php
 
-namespace FluffyDiscord\RoadRunnerBundle\Worker\Jobs;
+namespace FluffyDiscord\RoadRunnerBundle\Event\Worker\Jobs;
 
-class Job
+use Symfony\Contracts\EventDispatcher\Event;
+
+class JobsRunEvent extends Event
 {
     public function __construct(
         private readonly string $queue,
