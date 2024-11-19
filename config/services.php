@@ -30,11 +30,11 @@ return static function (ContainerConfigurator $container) {
     $services = $container->services();
 
 //    // default RoadRunner services
-//    $services
-//        ->set(EnvironmentInterface::class)
-//        ->factory([Environment::class, "fromGlobals"])
-//    ;
-//
+    $services
+        ->set(EnvironmentInterface::class)
+        ->factory([Environment::class, "fromGlobals"])
+    ;
+
 //    $services
 //        ->set(RoadRunnerWorkerInterface::class)
 //        ->share(false)
@@ -50,15 +50,15 @@ return static function (ContainerConfigurator $container) {
 //            service(RoadRunnerWorkerInterface::class),
 //        ])
 //    ;
-//
-//    $services
-//        ->set(RPCInterface::class)
-//        ->factory([RPCFactory::class, "fromEnvironment"])
-//        ->args([
-//            service(EnvironmentInterface::class),
-//        ])
-//    ;
-//
+
+    $services
+        ->set(RPCInterface::class)
+        ->factory([RPCFactory::class, "fromEnvironment"])
+        ->args([
+            service(EnvironmentInterface::class),
+        ])
+    ;
+
 //    // default bundle services
 //    $services
 //        ->set(WorkerRegistry::class)
