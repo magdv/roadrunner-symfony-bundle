@@ -62,6 +62,10 @@ return static function (ContainerConfigurator $container) {
     // default bundle services
     $services
         ->set(WorkerRegistry::class)
+        ->args([
+            service(BundleHttpWorker::class),
+            service(JobsWorker::class),
+        ])
         ->public()
     ;
 
