@@ -86,6 +86,13 @@ return static function (ContainerConfigurator $container) {
         ])
     ;
 
+    $services
+        ->get(WorkerRegistry::class)
+        ->call("registerWorker", [
+            Environment\Mode::MODE_JOBS,
+            service(JobsWorker::class),
+        ]);
+
     // Worker sessions fix
     $services
         ->set(WorkerSessionStorageFactory::class)
