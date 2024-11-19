@@ -11,8 +11,8 @@ use GuzzleHttp\Promise\PromiseInterface; // Sentry v4 compatibility
 use Nyholm\Psr7;
 use Sentry\State\HubInterface as SentryHubInterface;
 use Spiral\RoadRunner;
+use Spiral\RoadRunner\Environment;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
-use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,50 +23,42 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 
 readonly class HttpWorker implements WorkerInterface
 {
-    private HttpFoundationFactoryInterface $httpFoundationFactory;
-
-    private Psr7\Factory\Psr17Factory $psrFactory;
-
     /**
      * @var string
      */
     public const DUMMY_REQUEST_ATTRIBUTE = "rr_dummy_request";
 
     public function __construct(
-        private bool $earlyRouterInitialization,
-        private bool $lazyBoot,
         private KernelInterface $kernel,
         private EventDispatcherInterface $eventDispatcher,
         private ?SentryHubInterface $sentryHubInterface = null,
-        ?HttpFoundationFactoryInterface $httpFoundationFactory = null,
     ) {
-        $this->psrFactory = new Psr7\Factory\Psr17Factory();
-        $this->httpFoundationFactory = $httpFoundationFactory ?? new HttpFoundationFactory();
     }
 
     public function start(): void
     {
+        $httpFoundationFactory = new HttpFoundationFactory();
+        $psr17Factory = new Psr7\Factory\Psr17Factory();
+
         $worker = new RoadRunner\Http\PSR7Worker(
-            RoadRunner\Worker::create(),
-            $this->psrFactory,
-            $this->psrFactory,
-            $this->psrFactory,
+            RoadRunner\Worker::createFromEnvironment(
+                Environment::fromGlobals()
+            ),
+            $psr17Factory,
+            $psr17Factory,
+            $psr17Factory,
         );
 
-        if (!$this->lazyBoot) {
             $this->kernel->boot();
 
             // Initialize routing and other lazy services that Symfony has.
             // Reduces first real request response time more than 50%, YMMW
-            if ($this->earlyRouterInitialization) {
-                $this->kernel->handle(new Request(attributes: [self::DUMMY_REQUEST_ATTRIBUTE => true]));
-            }
+            $this->kernel->handle(new Request(attributes: [self::DUMMY_REQUEST_ATTRIBUTE => true]));
 
             // Preload reflections, up to 2ms savings for each, YMMW
             new \ReflectionClass(StreamedJsonResponse::class);
             new \ReflectionClass(StreamedResponse::class);
             new \ReflectionClass(BinaryFileResponse::class);
-        }
 
         $this->eventDispatcher->dispatch(new WorkerBootingEvent());
 
@@ -76,7 +68,7 @@ readonly class HttpWorker implements WorkerInterface
                 $this->sentryHubInterface?->pushScope();
 
                 try {
-                    $symfonyRequest = $this->httpFoundationFactory->createRequest($request);
+                    $symfonyRequest = $httpFoundationFactory->createRequest($request);
                     $symfonyResponse = $this->kernel->handle($symfonyRequest);
 
                     $content = match (true) {

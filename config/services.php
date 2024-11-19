@@ -29,69 +29,69 @@ use Symfony\Component\HttpKernel\KernelInterface;
 return static function (ContainerConfigurator $container) {
     $services = $container->services();
 
-    // default RoadRunner services
-    $services
-        ->set(EnvironmentInterface::class)
-        ->factory([Environment::class, "fromGlobals"])
-    ;
+//    // default RoadRunner services
+//    $services
+//        ->set(EnvironmentInterface::class)
+//        ->factory([Environment::class, "fromGlobals"])
+//    ;
+//
+//    $services
+//        ->set(RoadRunnerWorkerInterface::class)
+//        ->share(false)
+//        ->factory([RoadRunnerWorker::class, "createFromEnvironment"])
+//        ->args([
+//            service(EnvironmentInterface::class),
+//        ])
+//    ;
 
-    $services
-        ->set(RoadRunnerWorkerInterface::class)
-        ->share(false)
-        ->factory([RoadRunnerWorker::class, "createFromEnvironment"])
-        ->args([
-            service(EnvironmentInterface::class),
-        ])
-    ;
+//    $services
+//        ->set(HttpWorkerInterface::class, HttpWorker::class)
+//        ->args([
+//            service(RoadRunnerWorkerInterface::class),
+//        ])
+//    ;
+//
+//    $services
+//        ->set(RPCInterface::class)
+//        ->factory([RPCFactory::class, "fromEnvironment"])
+//        ->args([
+//            service(EnvironmentInterface::class),
+//        ])
+//    ;
+//
+//    // default bundle services
+//    $services
+//        ->set(WorkerRegistry::class)
+//        ->public()
+//    ;
+//
+//    $services
+//        ->set(BundleHttpWorker::class)
+//        ->public()
+//        ->args([
+//            $_ENV["APP_ENV"] === "prod",
+//            false,
+//            service(KernelInterface::class),
+//            service(EventDispatcherInterface::class),
+//            service(SentryHubInterface::class)->nullOnInvalid(),
+//            service(HttpFoundationFactoryInterface::class)->nullOnInvalid(),
+//        ])
+//    ;
+//
+//    $services
+//        ->get(WorkerRegistry::class)
+//        ->call("registerWorker", [
+//            Environment\Mode::MODE_HTTP,
+//            service(BundleHttpWorker::class),
+//        ])
+//    ;
 
-    $services
-        ->set(HttpWorkerInterface::class, HttpWorker::class)
-        ->args([
-            service(RoadRunnerWorkerInterface::class),
-        ])
-    ;
-
-    $services
-        ->set(RPCInterface::class)
-        ->factory([RPCFactory::class, "fromEnvironment"])
-        ->args([
-            service(EnvironmentInterface::class),
-        ])
-    ;
-
-    // default bundle services
-    $services
-        ->set(WorkerRegistry::class)
-        ->public()
-    ;
-
-    $services
-        ->set(BundleHttpWorker::class)
-        ->public()
-        ->args([
-            $_ENV["APP_ENV"] === "prod",
-            false,
-            service(KernelInterface::class),
-            service(EventDispatcherInterface::class),
-            service(SentryHubInterface::class)->nullOnInvalid(),
-            service(HttpFoundationFactoryInterface::class)->nullOnInvalid(),
-        ])
-    ;
-
-    $services
-        ->get(WorkerRegistry::class)
-        ->call("registerWorker", [
-            Environment\Mode::MODE_HTTP,
-            service(BundleHttpWorker::class),
-        ])
-    ;
-
-    $services
-        ->get(WorkerRegistry::class)
-        ->call("registerWorker", [
-            Environment\Mode::MODE_JOBS,
-            service(JobsWorker::class),
-        ]);
+//    $services
+//        ->get(WorkerRegistry::class)
+//        ->call("registerWorker", [
+//            Environment\Mode::MODE_JOBS,
+//            service(JobsWorker::class),
+//        ]);
 
     // Worker sessions fix
     $services
@@ -109,49 +109,49 @@ return static function (ContainerConfigurator $container) {
         ])
     ;
 
-    // Centrifugo
-    if (class_exists(RoadRunnerCentrifugoWorker::class)) {
-        $services
-            ->set(RequestFactory::class)
-            ->args([
-                service(RoadRunnerWorkerInterface::class),
-            ])
-        ;
-
-        $services
-            ->set(CentrifugoWorkerInterface::class, RoadRunnerCentrifugoWorker::class)
-            ->args([
-                service(RoadRunnerWorkerInterface::class),
-                service(RequestFactory::class),
-            ])
-        ;
-
-        $services
-            ->set(RPCCentrifugoApi::class)
-            ->public()
-            ->args([
-                service(RPCInterface::class),
-            ])
-        ;
-
-        $services
-            ->set(CentrifugoWorker::class)
-            ->public()
-            ->args([
-                false,
-                service(KernelInterface::class),
-                service(CentrifugoWorkerInterface::class),
-                service(EventDispatcherInterface::class),
-                service(SentryHubInterface::class)->nullOnInvalid(),
-            ])
-        ;
-
-        $services
-            ->get(WorkerRegistry::class)
-            ->call("registerWorker", [
-                Environment\Mode::MODE_CENTRIFUGE,
-                service(CentrifugoWorker::class),
-            ])
-        ;
-    }
+// Centrifugo todo надо разобраться, сейчас оно мне не надо.
+//    if (class_exists(RoadRunnerCentrifugoWorker::class)) {
+//        $services
+//            ->set(RequestFactory::class)
+//            ->args([
+//                service(RoadRunnerWorkerInterface::class),
+//            ])
+//        ;
+//
+//        $services
+//            ->set(CentrifugoWorkerInterface::class, RoadRunnerCentrifugoWorker::class)
+//            ->args([
+//                service(RoadRunnerWorkerInterface::class),
+//                service(RequestFactory::class),
+//            ])
+//        ;
+//
+//        $services
+//            ->set(RPCCentrifugoApi::class)
+//            ->public()
+//            ->args([
+//                service(RPCInterface::class),
+//            ])
+//        ;
+//
+//        $services
+//            ->set(CentrifugoWorker::class)
+//            ->public()
+//            ->args([
+//                false,
+//                service(KernelInterface::class),
+//                service(CentrifugoWorkerInterface::class),
+//                service(EventDispatcherInterface::class),
+//                service(SentryHubInterface::class)->nullOnInvalid(),
+//            ])
+//        ;
+//
+//        $services
+//            ->get(WorkerRegistry::class)
+//            ->call("registerWorker", [
+//                Environment\Mode::MODE_CENTRIFUGE,
+//                service(CentrifugoWorker::class),
+//            ])
+//        ;
+//    }
 };
