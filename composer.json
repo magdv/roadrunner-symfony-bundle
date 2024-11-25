@@ -11,6 +11,7 @@
   ],
   "require": {
     "php": ">=8.2",
+    "ext-sockets": "*",
     "nyholm/psr7": "^1.8",
     "spiral/roadrunner": "^v2024",
     "symfony/dependency-injection": "^7.1",
@@ -21,8 +22,8 @@
     "spiral/roadrunner-worker": "^v3",
     "spiral/roadrunner-http": "^v3",
     "spiral/roadrunner-cli": "^v2.6",
-      "ext-sockets": "*",
-    "spiral/roadrunner-jobs": "^4.6"
+    "spiral/roadrunner-jobs": "^4.6",
+    "temporal/sdk": "^2.11"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,

@@ -22,6 +22,7 @@ class JobsWorker implements WorkerInterface
     public function start(): void
     {
         $this->kernel->boot();
+        // todo реализовать. На основе разных классов эксепшенов.
         $shouldBeRestarted = false;
 
         $i = 0;
