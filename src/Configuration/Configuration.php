@@ -32,6 +32,19 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode("lazy_boot")->defaultFalse()->end()
                     ->end()
                 ->end()
+                ->arrayNode("temporal")
+                    ->children()
+                        ->scalarNode("taskQueue")->defaultValue('taskQueue')->end()
+                    ->end()
+                    ->children()
+                        ->arrayNode("workflow")
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->arrayNode("activity")
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $builder;

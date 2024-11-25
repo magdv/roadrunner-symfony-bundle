@@ -7,6 +7,7 @@ use FluffyDiscord\RoadRunnerBundle\Session\WorkerSessionStorageFactory;
 use FluffyDiscord\RoadRunnerBundle\Worker\CentrifugoWorker;
 use FluffyDiscord\RoadRunnerBundle\Worker\HttpWorker as BundleHttpWorker;
 use FluffyDiscord\RoadRunnerBundle\Worker\JobsWorker;
+use FluffyDiscord\RoadRunnerBundle\Worker\TemporalWorker;
 use FluffyDiscord\RoadRunnerBundle\Worker\WorkerRegistry;
 use RoadRunner\Centrifugo\CentrifugoWorker as RoadRunnerCentrifugoWorker;
 use RoadRunner\Centrifugo\CentrifugoWorkerInterface;
@@ -81,7 +82,7 @@ return static function (ContainerConfigurator $container) {
             service(BundleHttpWorker::class),
         ])
     ;
-
+    // jobs Worker
     $services
         ->set(JobsWorker::class)
         ->args([
@@ -95,6 +96,21 @@ return static function (ContainerConfigurator $container) {
         ->call("registerWorker", [
             Environment\Mode::MODE_JOBS,
             service(JobsWorker::class),
+        ])
+    ;
+
+    // Temporal Worker
+    $services
+        ->set(TemporalWorker::class)
+        ->args([
+            service(KernelInterface::class),
+        ]);
+
+    $services
+        ->get(WorkerRegistry::class)
+        ->call("registerWorker", [
+            Environment\Mode::MODE_TEMPORAL,
+            service(TemporalWorker::class),
         ])
     ;
 
