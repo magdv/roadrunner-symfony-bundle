@@ -50,12 +50,13 @@ fluffy_discord_road_runner:
         # https://docs.roadrunner.dev/key-value/overview-kv#end-to-end-value-encryption
         keypair_path: bin/keypair.key
     temporal:
-        taskQueue: 'taskQueue'
-        workflow: [
-            'fffff',
-            '33333'
-        ]
-        activity: [
-            'aaaaa',
-            'qqqqq'
-        ]
+        workerFactory: Temporal\WorkerFactory
+        workers:
+            default:
+                taskQueue: default
+                workflow: [
+                    FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingWorkflow
+                ]
+                activity: [
+                    FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingActivity
+                ]
