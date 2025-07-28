@@ -6,6 +6,7 @@ use FluffyDiscord\RoadRunnerBundle\Configuration\Configuration;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Yaml\Yaml;
+use Temporal\WorkerFactory;
 
 class ConfigurationTest extends TestCase
 {
@@ -16,8 +17,37 @@ class ConfigurationTest extends TestCase
             new Configuration(),
             Yaml::parseFile(__DIR__ . '/dummy/fluffy_discord_road_runner.yaml')
         );
-        self::assertEquals(['fffff', '33333'], $array['temporal']['workflow']);
-        self::assertEquals(['aaaaa', 'qqqqq'], $array['temporal']['activity']);
-        self::assertEquals('taskQueue', $array['temporal']['taskQueue']);
+        self::assertEquals('Temporal\WorkerFactory', $array['temporal']['workerFactory']);
+        self::assertEquals([
+            'default' => [
+                'taskQueue' => 'default',
+                'workflow'  => [
+                    'FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingWorkflow'
+                ],
+                'activity'  => [
+                    'FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingActivity'
+                ],
+            ]
+        ], $array['temporal']['workers']);
+
+
+        $factory = WorkerFactory::create();
+
+        foreach ($array['temporal']['workers'] as $worker) {
+            // Worker that listens on a task queue and hosts both workflow and activity implementations.
+            $worker = $factory->newWorker(
+                $worker['taskQueue']
+            );
+
+            foreach ($array['temporal']['workflow'] as $class) {
+                $worker->registerWorkflowTypes($class);
+            }
+
+            foreach ($array['temporal']['activity'] as $class) {
+                $worker->registerActivityImplementations(new $class());
+            }
+        }
+
+        $d = $factory;
     }
 }

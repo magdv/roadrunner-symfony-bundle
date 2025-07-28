@@ -8,6 +8,7 @@ use FluffyDiscord\RoadRunnerBundle\Exception\CacheAutoRegisterException;
 use FluffyDiscord\RoadRunnerBundle\Exception\InvalidRPCConfigurationException;
 use FluffyDiscord\RoadRunnerBundle\Worker\CentrifugoWorker;
 use FluffyDiscord\RoadRunnerBundle\Worker\TemporalWorker;
+use JsonException;
 use Spiral\Goridge\Exception\RelayException;
 use Spiral\Goridge\RPC\RPCInterface;
 use Symfony\Component\Config\FileLocator;
@@ -15,6 +16,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\Yaml\Yaml;
+use Temporal\Worker\Worker;
+use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Worker\WorkerInterface;
 
 class FluffyDiscordRoadRunnerExtension extends Extension
 {
@@ -26,23 +30,7 @@ class FluffyDiscordRoadRunnerExtension extends Extension
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         //  настройка Temporal
-
-        if (isset($config["temporal"]["taskQueue"])) {
-            $definition = $container->getDefinition(TemporalWorker::class);
-            $definition->replaceArgument(1, $config["temporal"]["taskQueue"]);
-        }
-
-        if (isset($config["temporal"]["workflow"])) {
-            $definition = $container->getDefinition(TemporalWorker::class);
-            $definition->replaceArgument(2, $config["temporal"]["workflow"]);
-        }
-
-        if (isset($config["temporal"]["activity"])) {
-            $definition = $container->getDefinition(TemporalWorker::class);
-            $definition->replaceArgument(3, $config["temporal"]["activity"]);
-        }
-
-//        todo workerOptions
+        $this->prepareTemporal($container);
 
         if (isset($config["centrifugo"]["lazy_boot"]) && $container->hasDefinition(CentrifugoWorker::class)) {
             $definition = $container->getDefinition(CentrifugoWorker::class);
@@ -65,7 +53,8 @@ class FluffyDiscordRoadRunnerExtension extends Extension
                             $config["kv"]["serializer"] ?? null,
                             $config["kv"]["keypair_path"] ?? null,
                         ]
-                    );
+                    )
+                ;
             }
         }
     }
@@ -79,8 +68,8 @@ class FluffyDiscordRoadRunnerExtension extends Extension
         }
 
         try {
-            return json_decode(base64_decode((string) $rpc->call("rpc.Config", null)), true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $jsonException) {
+            return json_decode(base64_decode((string)$rpc->call("rpc.Config", null)), true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $jsonException) {
             throw new CacheAutoRegisterException($jsonException->getMessage(), previous: $jsonException);
         } catch (RelayException $relayException) {
             if ($config["rr_config_path"] !== null) {
@@ -100,4 +89,42 @@ class FluffyDiscordRoadRunnerExtension extends Extension
             throw new CacheAutoRegisterException('Error connecting to RPC service. Is RoadRunner running? Optionally set "rr_config_path" in bundle\'s config.', previous: $relayException);
         }
     }
+
+    public function prepareTemporal(ContainerBuilder $container): void
+    {
+        $config = $container->getParameter('temporal');
+
+        /** @var WorkerFactoryInterface $factory */
+        $factory = $container->register('temporal.worker_factory', WorkerFactoryInterface::class)
+                             ->setFactory([$config["workerFactory"], 'create'])
+                             ->setPublic(true);
+
+        $configuredWorkers = [];
+
+        foreach ($config['workers'] as $workerName => $worker) {
+
+            /** @var Worker $newWorker */
+            $newWorker = $container->register(sprintf('temporal.%s.worker', $workerName), WorkerInterface::class)
+                                   ->setFactory([$factory, 'newWorker'])
+                                   ->setArguments([
+                                       $worker['taskQueue']
+                                   ])
+                                   ->setPublic(true)
+            ;
+
+            foreach ($worker['workflow'] as $class) {
+                $newWorker->registerWorkflowTypes($class);
+            }
+
+            foreach ($worker['activity'] as $class) {
+                $worker->registerActivityImplementations(new $class());
+            }
+
+            $configuredWorkers[$workerName] = $newWorker;
+        }
+
+        $definition = $container->getDefinition(TemporalWorker::class);
+        $definition->replaceArgument(1, $factory);
+    }
+
 }

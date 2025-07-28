@@ -4,6 +4,7 @@ namespace FluffyDiscord\RoadRunnerBundle\Configuration;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Temporal\WorkerFactory;
 
 class Configuration implements ConfigurationInterface
 {
@@ -34,15 +35,23 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode("temporal")
                     ->children()
-                        ->scalarNode("taskQueue")->defaultValue('taskQueue')->end()
+                        ->scalarNode('workerFactory')->defaultValue(WorkerFactory::class)->end()
                     ->end()
                     ->children()
-                        ->arrayNode("workflow")
-                            ->scalarPrototype()->end()
-                        ->end()
-                        ->arrayNode("activity")
-                            ->scalarPrototype()->end()
-                        ->end()
+                        ->arrayNode("workers")->useAttributeAsKey('name')->arrayPrototype()
+                            ->children()->scalarNode('taskQueue')->defaultValue('default')->end()
+                            ->end()
+
+                            ->children()
+                                ->arrayNode("workflow")
+                                    ->scalarPrototype()->end()
+                                ->end()
+                                ->arrayNode("activity")
+                                    ->scalarPrototype()->end()
+                                ->end()
+                            ->end()
+
+
                     ->end()
                 ->end()
             ->end();

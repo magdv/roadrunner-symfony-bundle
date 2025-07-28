@@ -5,40 +5,22 @@ declare(strict_types=1);
 namespace FluffyDiscord\RoadRunnerBundle\Worker;
 
 use Symfony\Component\HttpKernel\KernelInterface;
-use Temporal\Worker\WorkerOptions;
-use Temporal\WorkerFactory;
+use Temporal\Worker\WorkerFactoryInterface;
 
 class TemporalWorker implements WorkerInterface
 {
     public function __construct(
         private readonly KernelInterface $kernel,
-        private readonly string $taskQueue = 'taskQueue',
-        private array $workflowClassNames = [],
-        private array $activityClassNames = [],
-        private readonly ?WorkerOptions $workerOptions = null,
+        private readonly ?WorkerFactoryInterface $workerFactory = null,
     ) {
     }
 
     public function start(): void
     {
         $this->kernel->boot();
-
-        $factory = WorkerFactory::create();
-
-        // Worker that listens on a task queue and hosts both workflow and activity implementations.
-        $worker = $factory->newWorker(
-            $this->taskQueue,
-            $this->workerOptions
-        );
-
-        foreach ($this->workflowClassNames as $class) {
-            $worker->registerWorkflowTypes($class);
+        if ($this->workerFactory === null) {
+            throw new \Exception('Temporal Worker Factory not set');
         }
-
-        foreach ($this->activityClassNames as $class) {
-            $worker->registerActivityImplementations(new $class());
-        }
-
-        $factory->run();
+        $this->workerFactory->run();
     }
 }
