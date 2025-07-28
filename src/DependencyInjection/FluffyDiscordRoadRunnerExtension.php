@@ -30,7 +30,7 @@ class FluffyDiscordRoadRunnerExtension extends Extension
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         //  настройка Temporal
-        $this->prepareTemporal($container);
+        $this->prepareTemporal($config, $container);
 
         if (isset($config["centrifugo"]["lazy_boot"]) && $container->hasDefinition(CentrifugoWorker::class)) {
             $definition = $container->getDefinition(CentrifugoWorker::class);
@@ -90,10 +90,8 @@ class FluffyDiscordRoadRunnerExtension extends Extension
         }
     }
 
-    public function prepareTemporal(ContainerBuilder $container): void
+    public function prepareTemporal(array $config, ContainerBuilder $container): void
     {
-        $config = $container->getParameter('temporal');
-
         /** @var WorkerFactoryInterface $factory */
         $factory = $container->register('temporal.worker_factory', WorkerFactoryInterface::class)
                              ->setFactory([$config["workerFactory"], 'create'])
