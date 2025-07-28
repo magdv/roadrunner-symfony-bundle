@@ -30,7 +30,7 @@ class FluffyDiscordRoadRunnerExtension extends Extension
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         //  настройка Temporal
-        $this->prepareTemporal($config, $container);
+        $this->prepareTemporal($config['temporal'], $container);
 
         if (isset($config["centrifugo"]["lazy_boot"]) && $container->hasDefinition(CentrifugoWorker::class)) {
             $definition = $container->getDefinition(CentrifugoWorker::class);
