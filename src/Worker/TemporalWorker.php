@@ -20,6 +20,7 @@ class TemporalWorker implements WorkerInterface
     public function start(): void
     {
         $this->kernel->boot();
+        $container = $this->kernel->getContainer();
         if ($this->workerFactory === null) {
             $this->workerFactory = WorkerFactory::create();
             foreach ($this->workers as $worker) {
@@ -28,7 +29,7 @@ class TemporalWorker implements WorkerInterface
                     $newWorker->registerWorkflowTypes($class);
                 }
                 foreach ($worker['activity'] as $class) {
-                    $newWorker->registerActivity($class);
+                    $newWorker->registerActivity($class, fn(\ReflectionClass $class) => $container->get($class->getName()));
                 }
             }
         }
