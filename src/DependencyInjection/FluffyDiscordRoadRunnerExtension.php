@@ -16,21 +16,14 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\Yaml\Yaml;
-use Temporal\Worker\Worker;
-use Temporal\Worker\WorkerFactoryInterface;
-use Temporal\Worker\WorkerInterface;
 
 class FluffyDiscordRoadRunnerExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container): void
     {
+        $config = $this->processConfiguration(new Configuration(), $configs);
         $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . "/../../config"));
         $loader->load("services.php");
-
-        $config = $this->processConfiguration(new Configuration(), $configs);
-
-        //  настройка Temporal
-        $this->prepareTemporal($config['temporal'], $container);
 
         if (isset($config["centrifugo"]["lazy_boot"]) && $container->hasDefinition(CentrifugoWorker::class)) {
             $definition = $container->getDefinition(CentrifugoWorker::class);
@@ -56,6 +49,11 @@ class FluffyDiscordRoadRunnerExtension extends Extension
                     )
                 ;
             }
+        }
+
+        if (isset($config['temporal']['workers']) && $container->hasDefinition(TemporalWorker::class)) {
+            $definition = $container->getDefinition(TemporalWorker::class);
+            $definition->addArgument($config["temporal"]["workers"]);
         }
     }
 
@@ -88,41 +86,6 @@ class FluffyDiscordRoadRunnerExtension extends Extension
 
             throw new CacheAutoRegisterException('Error connecting to RPC service. Is RoadRunner running? Optionally set "rr_config_path" in bundle\'s config.', previous: $relayException);
         }
-    }
-
-    public function prepareTemporal(array $config, ContainerBuilder $container): void
-    {
-        /** @var WorkerFactoryInterface $factory */
-        $factory = $container->register('temporal.worker_factory', WorkerFactoryInterface::class)
-                             ->setFactory([$config["workerFactory"], 'create'])
-                             ->setPublic(true);
-
-        $configuredWorkers = [];
-
-        foreach ($config['workers'] as $workerName => $worker) {
-
-            /** @var Worker $newWorker */
-            $newWorker = $container->register(sprintf('temporal.%s.worker', $workerName), WorkerInterface::class)
-                                   ->setFactory([$factory, 'newWorker'])
-                                   ->setArguments([
-                                       $worker['taskQueue']
-                                   ])
-                                   ->setPublic(true)
-            ;
-
-            foreach ($worker['workflow'] as $class) {
-                $newWorker->registerWorkflowTypes($class);
-            }
-
-            foreach ($worker['activity'] as $class) {
-                $worker->registerActivityImplementations(new $class());
-            }
-
-            $configuredWorkers[$workerName] = $newWorker;
-        }
-
-        $definition = $container->getDefinition(TemporalWorker::class);
-        $definition->replaceArgument(1, $factory);
     }
 
 }
