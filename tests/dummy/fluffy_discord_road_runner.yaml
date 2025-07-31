@@ -50,7 +50,6 @@ fluffy_discord_road_runner:
         # https://docs.roadrunner.dev/key-value/overview-kv#end-to-end-value-encryption
         keypair_path: bin/keypair.key
     temporal:
-        workerFactory: Temporal\WorkerFactory
         workers:
             default:
                 taskQueue: default

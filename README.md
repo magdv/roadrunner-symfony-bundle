@@ -99,6 +99,16 @@ fluffy_discord_road_runner:
     # https://docs.roadrunner.dev/key-value/overview-kv#end-to-end-value-encryption
     keypair_path: bin/keypair.key
 
+  temporal:
+    workers:
+      default:
+        taskQueue: default
+        workflow: [
+            App\Modules\Workflow\GreetingWorkflow
+        ]
+        activity: [
+            App\Modules\Workflow\GreetingActivity
+        ]
 ```
 
 
@@ -280,41 +290,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 }
 ```
 ## Jobs
-
-Надо реализовать интерфейс JobsRunner.
-В методе `run` обработать входящие задачи. Как? Это уже на ваше усмотрение.
+Для обработки полученных сообщений надо eventHandler.
 Любой эксепшен вернет задачу в очередь.
 
 ```php
 <?php
 
-namespace SomeNameSpace\Name;
+declare(strict_types=1);
 
-class ExampleJobsRunner implements JobsRunner
+namespace App\Event\Handler;
+
+use App\Message\NotifyToMattermostMessage;
+use FluffyDiscord\RoadRunnerBundle\Event\Worker\Jobs\JobsRunEvent;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\Messenger\MessageBusInterface;
+
+#[AsEventListener(event: JobsRunEvent::class, method: 'handleJob')]
+final class JobsEventHandler
 {
-    public function run(Job $job): void
+    public function __construct(
+        private readonly MessageBusInterface $notifyBus,
+    ) {
+    }
+
+    public function handleJob(JobsRunEvent $event): void
     {
-        // TODO: Implement run() method.
+//        todo реализовать мапинг на экшены обработки разных событий
+        $this->notifyBus->dispatch(
+            new NotifyToMattermostMessage(
+                'Получили сообщение из очереди',
+                'Проверяем как работает JOBS',
+                [
+                    'payload' => $event->getPayload(),
+                    'queue' => $event->getQueue(),
+                    'headers' => $event->getHeaders(),
+                ]
+            )
+        );
     }
 }
+
 ```
 
-Пример регистрации сервиса в DI `services.yaml`
+## Temporal
+Зарегистрируйте Workflow и Activity в конфигурации.
 
 ```yaml
-services:
-    FluffyDiscord\RoadRunnerBundle\Worker\Jobs\JobsRunner:
-      class: SomeNameSpace\Name\ExampleJobsRunner
+    temporal:
+        workers:
+            default:
+                taskQueue: default
+                workflow: [
+                    FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingWorkflow
+                ]
+                activity: [
+                    FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingActivity
+                ]
 ```
-
-
-## Debugging (recommendations)
-
-With RoadRunner you cannot simply dump and die, because nothing will be printed.
-I would like to introduce [Buggregator](https://docs.buggregator.dev/config/var-dumper.html) to work around that. 
-As a bonus it can also work as a [mailtrap](https://docs.buggregator.dev/config/smtp.html) or testing [Sentry](https://docs.buggregator.dev/config/sentry.html) locally
-
-## Credits
-
-Inspiration taken from existing solutions like [Baldinof's Bundle](https://github.com/Baldinof/roadrunner-bundle) 
-and [Nyholm's Runtime](https://github.com/php-runtime/roadrunner-symfony-nyholm)
+Главное зарегистрировать Activity как public. Иначе DI не сможет подтянуть зависимости.
+```yaml
+services:
+    FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingActivity:
+      public: true
+```

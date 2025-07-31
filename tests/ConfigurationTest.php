@@ -17,7 +17,6 @@ class ConfigurationTest extends TestCase
             new Configuration(),
             Yaml::parseFile(__DIR__ . '/dummy/fluffy_discord_road_runner.yaml')
         );
-        self::assertEquals('Temporal\WorkerFactory', $array['temporal']['workerFactory']);
         self::assertEquals([
             'default' => [
                 'taskQueue' => 'default',
@@ -47,7 +46,5 @@ class ConfigurationTest extends TestCase
                 $worker->registerActivityImplementations(new $class());
             }
         }
-
-        $d = $factory;
     }
 }
