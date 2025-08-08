@@ -28,7 +28,7 @@ class ConfigurationTest extends TestCase
                 ],
             ]
         ], $array['temporal']['workers']);
-
+        self::assertFalse($array['temporal']['testMode']);
 
         $factory = WorkerFactory::create();
 

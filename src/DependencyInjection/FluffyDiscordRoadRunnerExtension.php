@@ -51,9 +51,12 @@ class FluffyDiscordRoadRunnerExtension extends Extension
             }
         }
 
+
         if (isset($config['temporal']['workers']) && $container->hasDefinition(TemporalWorker::class)) {
+            $temporalTestMode = $config['temporal']['testMode']?? false;
             $definition = $container->getDefinition(TemporalWorker::class);
             $definition->addArgument($config["temporal"]["workers"]);
+            $definition->addArgument($temporalTestMode);
         }
     }
 
