@@ -17,18 +17,21 @@ class ConfigurationTest extends TestCase
             new Configuration(),
             Yaml::parseFile(__DIR__ . '/dummy/fluffy_discord_road_runner.yaml')
         );
-        self::assertEquals([
-            'default' => [
-                'taskQueue' => 'default',
-                'workflow'  => [
-                    'FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingWorkflow'
-                ],
-                'activity'  => [
-                    'FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingActivity'
-                ],
-            ]
-        ], $array['temporal']['workers']);
-        self::assertFalse($array['temporal']['testMode']);
+        self::assertEquals(
+            [
+                'default' => [
+                    'taskQueue' => 'default',
+                    'workflow'  => [
+                        'FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingWorkflow'
+                    ],
+                    'activity'  => [
+                        'FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingActivity'
+                    ],
+                ]
+            ],
+            $array['temporal']['workers']
+        );
+        self::assertNull($array['temporal']['env']);
 
         $factory = WorkerFactory::create();
 

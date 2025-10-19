@@ -337,6 +337,7 @@ final class JobsEventHandler
 
 ```yaml
     temporal:
+        env: '%env(APP_ENV)%' # если будет test, то включится тестовый темпорал
         workers:
             default:
                 taskQueue: default

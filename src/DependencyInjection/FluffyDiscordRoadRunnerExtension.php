@@ -46,17 +46,16 @@ class FluffyDiscordRoadRunnerExtension extends Extension
                             $config["kv"]["serializer"] ?? null,
                             $config["kv"]["keypair_path"] ?? null,
                         ]
-                    )
-                ;
+                    );
             }
         }
 
 
         if (isset($config['temporal']['workers']) && $container->hasDefinition(TemporalWorker::class)) {
-            $temporalTestMode = $config['temporal']['testMode']?? false;
+            $env = $config['temporal']['env'] ?? null;
             $definition = $container->getDefinition(TemporalWorker::class);
             $definition->addArgument($config["temporal"]["workers"]);
-            $definition->addArgument($temporalTestMode);
+            $definition->addArgument($env);
         }
     }
 
@@ -90,5 +89,4 @@ class FluffyDiscordRoadRunnerExtension extends Extension
             throw new CacheAutoRegisterException('Error connecting to RPC service. Is RoadRunner running? Optionally set "rr_config_path" in bundle\'s config.', previous: $relayException);
         }
     }
-
 }
