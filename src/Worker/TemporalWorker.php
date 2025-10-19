@@ -13,11 +13,10 @@ class TemporalWorker implements WorkerInterface
 {
     public function __construct(
         private readonly KernelInterface $kernel,
-        private readonly array           $workers = [],
-        private readonly bool            $testMode = false,
-        private ?WorkerFactoryInterface  $workerFactory = null,
-    )
-    {
+        private readonly array $workers = [],
+        private readonly ?string $env = null,
+        private ?WorkerFactoryInterface $workerFactory = null,
+    ) {
     }
 
     public function start(): void
@@ -25,7 +24,7 @@ class TemporalWorker implements WorkerInterface
         $this->kernel->boot();
         $container = $this->kernel->getContainer();
         if ($this->workerFactory === null) {
-            if ($this->testMode) {
+            if ($this->env === 'test') {
                 $this->workerFactory = TestingWorkerFactory::create();
             } else {
                 $this->workerFactory = WorkerFactory::create();

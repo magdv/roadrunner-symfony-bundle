@@ -35,7 +35,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode("temporal")
                     ->children()
-                        ->booleanNode("testMode")->defaultFalse()->end()
+                        ->scalarNode("env")->defaultNull()->end()
                     ->end()
                     ->children()
                         ->arrayNode("workers")->useAttributeAsKey('name')->arrayPrototype()
