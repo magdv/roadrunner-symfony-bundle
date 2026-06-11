@@ -13,7 +13,7 @@
     "php": ">=8.2",
     "ext-sockets": "*",
     "nyholm/psr7": "^1.8",
-    "spiral/roadrunner": "^v2024",
+    "spiral/roadrunner": "^2025.1",
     "symfony/dependency-injection": "^7.1",
     "symfony/http-kernel": "^7.1",
     "symfony/psr-http-message-bridge": "^7.1",
@@ -23,7 +23,7 @@
     "spiral/roadrunner-http": "^v3",
     "spiral/roadrunner-cli": "^v2.6",
     "spiral/roadrunner-jobs": "^4.6",
-    "temporal/sdk": "^2.11"
+    "temporal/sdk": "^2.17"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
