@@ -39,7 +39,7 @@ class JobsWorker implements WorkerInterface
 
                 // сборка мусора каждые 20 запросов
                 ++$i;
-                if ($i === 20) {
+                if ($i === 100) {
                     gc_collect_cycles();
                     $i = 0;
                 }
