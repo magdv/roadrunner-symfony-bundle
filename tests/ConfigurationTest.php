@@ -3,6 +3,8 @@
 namespace FluffyDiscord\RoadRunnerBundle\Tests;
 
 use FluffyDiscord\RoadRunnerBundle\Configuration\Configuration;
+use FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingActivity;
+use FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingWorkflow;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Yaml\Yaml;
@@ -22,10 +24,10 @@ class ConfigurationTest extends TestCase
                 'default' => [
                     'taskQueue' => 'default',
                     'workflow'  => [
-                        'FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingWorkflow'
+                        GreetingWorkflow::class
                     ],
                     'activity'  => [
-                        'FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingActivity'
+                        GreetingActivity::class
                     ],
                 ]
             ],

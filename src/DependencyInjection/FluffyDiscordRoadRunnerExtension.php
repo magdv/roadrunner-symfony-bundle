@@ -7,7 +7,9 @@ use FluffyDiscord\RoadRunnerBundle\Configuration\Configuration;
 use FluffyDiscord\RoadRunnerBundle\Exception\CacheAutoRegisterException;
 use FluffyDiscord\RoadRunnerBundle\Exception\InvalidRPCConfigurationException;
 use FluffyDiscord\RoadRunnerBundle\Worker\CentrifugoWorker;
+use FluffyDiscord\RoadRunnerBundle\Worker\JobsWorker;
 use FluffyDiscord\RoadRunnerBundle\Worker\TemporalWorker;
+use FluffyDiscord\RoadRunnerBundle\Worker\HttpWorker;
 use JsonException;
 use Spiral\Goridge\Exception\RelayException;
 use Spiral\Goridge\RPC\RPCInterface;
@@ -56,6 +58,17 @@ class FluffyDiscordRoadRunnerExtension extends Extension
             $definition = $container->getDefinition(TemporalWorker::class);
             $definition->addArgument($config["temporal"]["workers"]);
             $definition->addArgument($env);
+        }
+
+        // GC collect cycles configuration
+        if ($container->hasDefinition(HttpWorker::class)) {
+            $definition = $container->getDefinition(HttpWorker::class);
+            $definition->setArgument(3, $config['http']['gc_collect_cycles'] ?? 50);
+        }
+
+        if ($container->hasDefinition(JobsWorker::class)) {
+            $definition = $container->getDefinition(JobsWorker::class);
+            $definition->setArgument(2, $config['jobs']['gc_collect_cycles'] ?? 50);
         }
     }
 

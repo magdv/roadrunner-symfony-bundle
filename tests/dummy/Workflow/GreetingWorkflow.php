@@ -10,7 +10,7 @@ use Temporal\Workflow;
 
 class GreetingWorkflow implements GreetingWorkflowInterface
 {
-    private $greetingActivity;
+    private \FluffyDiscord\RoadRunnerBundle\Tests\dummy\Workflow\GreetingActivityInterface $greetingActivity;
 
     public function __construct()
     {

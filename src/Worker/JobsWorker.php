@@ -16,6 +16,7 @@ class JobsWorker implements WorkerInterface
     public function __construct(
         private readonly KernelInterface $kernel,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly int $gcCycleInterval = 50,
     ) {
     }
 
@@ -37,9 +38,9 @@ class JobsWorker implements WorkerInterface
                     )
                 );
 
-                // сборка мусора каждые 20 запросов
+                // сборка мусора каждые N запросов
                 ++$i;
-                if ($i === 100) {
+                if ($this->gcCycleInterval > 0 && $i === $this->gcCycleInterval) {
                     gc_collect_cycles();
                     $i = 0;
                 }

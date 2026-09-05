@@ -23,22 +23,25 @@ class TemporalWorker implements WorkerInterface
     {
         $this->kernel->boot();
         $container = $this->kernel->getContainer();
-        if ($this->workerFactory === null) {
+        if (!$this->workerFactory instanceof \Temporal\Worker\WorkerFactoryInterface) {
             if ($this->env === 'test') {
                 $this->workerFactory = TestingWorkerFactory::create();
             } else {
                 $this->workerFactory = WorkerFactory::create();
             }
+
             foreach ($this->workers as $worker) {
                 $newWorker = $this->workerFactory->newWorker($worker['taskQueue']);
                 foreach ($worker['workflow'] as $class) {
                     $newWorker->registerWorkflowTypes($class);
                 }
+
                 foreach ($worker['activity'] as $class) {
-                    $newWorker->registerActivity($class, fn(\ReflectionClass $class) => $container->get($class->getName()));
+                    $newWorker->registerActivity($class, static fn(\ReflectionClass $class) => $container->get($class->getName()));
                 }
             }
         }
+
         $this->workerFactory->run();
     }
 }
