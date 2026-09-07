@@ -18,7 +18,6 @@ use Temporal\Workflow\WorkflowMethod;
 interface GreetingWorkflowInterface
 {
     /**
-     * @param string $name
      * @return string
      */
     #[WorkflowMethod(name: "SimpleActivity.greet")]

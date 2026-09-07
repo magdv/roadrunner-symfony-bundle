@@ -72,6 +72,7 @@ return static function (ContainerConfigurator $container) {
             service(KernelInterface::class),
             service(EventDispatcherInterface::class),
             service(SentryHubInterface::class)->nullOnInvalid(),
+            0,
         ])
     ;
 
@@ -88,6 +89,7 @@ return static function (ContainerConfigurator $container) {
         ->args([
             service(KernelInterface::class),
             service(EventDispatcherInterface::class),
+            0,
         ]);
 
 

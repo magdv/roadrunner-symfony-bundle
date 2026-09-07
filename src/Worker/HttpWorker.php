@@ -32,6 +32,7 @@ readonly class HttpWorker implements WorkerInterface
         private KernelInterface $kernel,
         private EventDispatcherInterface $eventDispatcher,
         private ?SentryHubInterface $sentryHubInterface = null,
+        private int $gcCycleInterval = 50,
     ) {
     }
 
@@ -101,9 +102,9 @@ readonly class HttpWorker implements WorkerInterface
                     $this->sentryHubInterface?->popScope();
                 }
 
-                // сборка мусора каждые 20 запросов
+                // сборка мусора каждые N запросов
                 ++$i;
-                if ($i === 100) {
+                if ($this->gcCycleInterval > 0 && $i === $this->gcCycleInterval) {
                     gc_collect_cycles();
                     $i = 0;
                 }
