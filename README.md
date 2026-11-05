@@ -14,6 +14,8 @@ Define the environment variable `APP_RUNTIME` in `.rr.yaml` and set up `rpc` plu
 
 `.rr.yaml`
 ```yaml
+version: "3"
+
 server:
     env:
         APP_RUNTIME: FluffyDiscord\RoadRunnerBundle\Runtime\Runtime

@@ -1,11 +1,11 @@
 FROM php:8.3-cli-alpine
 
-ENV XDEBUG_VERSION 3.3.1
+ENV XDEBUG_VERSION 3.5.3
 RUN apk update && apk upgrade
 
 RUN apk add --no-cache bash linux-headers coreutils git \
     && git clone --branch $XDEBUG_VERSION --depth 1 https://github.com/xdebug/xdebug.git /usr/src/php/ext/xdebug \
-    && docker-php-ext-configure xdebug --enable-xdebug-dev \
+    && docker-php-ext-configure xdebug \
     && docker-php-ext-install xdebug
 
 RUN docker-php-ext-install sockets

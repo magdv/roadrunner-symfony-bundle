@@ -16,7 +16,9 @@ http:
     address: 0.0.0.0:8080
     pool:
         debug: true # development only! https://docs.roadrunner.dev/docs/php-worker/pool#workers-pool-configuration
-    middleware: [ "gzip", "static" ]
+    # Requests enter middleware from left to right.
+    # Reverse the v5 order (gzip, static) to keep the previous execution order.
+    middleware: [ "static", "gzip" ]
     static:
         dir: "public"
         forbid: [ ".php", ".htaccess" ]
